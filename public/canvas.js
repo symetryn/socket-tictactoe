@@ -1,6 +1,6 @@
 // import utils from "./utils";
 
-const socket = io("http://localhost:3000");
+const socket = io("https://sockettictac.herokuapp.com");
 
 socket.on("game-state", data => {
   turnActive = true;
