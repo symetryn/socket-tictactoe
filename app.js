@@ -1,14 +1,3 @@
-const io = require("socket.io")(3000);
-
-io.on("connection", socket => {
-  console.log("new User");
-  //   socket.emit("game-state", { player: "1" });
-  socket.on("send-current-grid", grid => {
-    console.log(grid);
-    socket.broadcast.emit("game-state", grid);
-  });
-});
-
 const express = require("express");
 const app = express();
 const path = require("path");
@@ -23,6 +12,20 @@ app.get("/", function(req, res) {
   //__dirname : It will resolve to your project folder.
 });
 
-var server = app.listen(process.env.PORT || 4000, () => {
-  console.log("server is running on port", server.address().port);
+var server = require("http").createServer(app);
+var io = require("socket.io").listen(server);
+
+server.listen(process.env.PORT || 4000);
+// let server = app.listen(process.env.PORT || 4000, () => {
+//   console.log("server is running on port", server.address().port);
+// });
+// const io = require("socket.io")(server);
+
+io.on("connection", socket => {
+  console.log("new User");
+  //   socket.emit("game-state", { player: "1" });
+  socket.on("send-current-grid", grid => {
+    console.log(grid);
+    socket.broadcast.emit("game-state", grid);
+  });
 });
