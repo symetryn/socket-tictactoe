@@ -24,6 +24,12 @@ server.listen(process.env.PORT || 4000);
 io.on("connection", socket => {
   console.log("new User");
   //   socket.emit("game-state", { player: "1" });
+  if (io.engine.clientsCount > 2) {
+    socket.emit("err", { message: "reach the limit of connections" });
+    socket.disconnect();
+    console.log("Disconnected...");
+    return;
+  }
   socket.on("send-current-grid", grid => {
     console.log(grid);
     socket.broadcast.emit("game-state", grid);

@@ -20,6 +20,9 @@ socket.on("game-state", data => {
   console.log("size" + checkfill());
   // checkGameOver();
 });
+ocket.on("err", data => {
+  console.log(data);
+});
 
 const canvas = document.querySelector("canvas");
 const c = canvas.getContext("2d");
