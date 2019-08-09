@@ -20,7 +20,7 @@ socket.on("game-state", data => {
   console.log("size" + checkfill());
   // checkGameOver();
 });
-ocket.on("err", data => {
+socket.on("err", data => {
   console.log(data);
 });
 
