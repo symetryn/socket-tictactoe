@@ -23,6 +23,6 @@ app.get("/", function(req, res) {
   //__dirname : It will resolve to your project folder.
 });
 
-var server = app.listen(4000, () => {
+var server = app.listen(process.env.PORT || 4000, () => {
   console.log("server is running on port", server.address().port);
 });
