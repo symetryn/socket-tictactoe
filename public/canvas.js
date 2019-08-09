@@ -5,9 +5,19 @@ const socket = io("http://localhost:3000");
 socket.on("game-state", data => {
   turnActive = true;
   grid = data;
-  console.log(data);
+  checkGameOver();
+  // console.log(data);
   drawCurrentGrid();
-  togglePlayer();
+  if (!gameOver) {
+    togglePlayer();
+  }
+  // if (gameOver) {
+  //   console.log("Congratulations " + currentPlayer);
+  //   message.innerHTML = "Congratulations " + currentPlayer;
+  // }
+
+  console.log("size" + checkfill());
+  // checkGameOver();
 });
 
 const canvas = document.querySelector("canvas");
@@ -38,6 +48,7 @@ const colors = ["#2185C5", "#7ECEFD", "#FFF6E5", "#FF7F66"];
 // Event Listeners
 
 reset.addEventListener("click", e => {
+  turnActive = true;
   message.innerHTML = "Player X turn";
   gameOver = false;
   currentPlayer = players[0];
@@ -61,7 +72,7 @@ function makeMove(e) {
   if (turnActive) {
     turnActive = false;
     console.log(grid);
-    if (checkfill() >= 9) console.log("Draw");
+    if (checkfill() >= 8) console.log("Draw");
     c.fillStyle = "black";
     console.log(checkfill());
     c.font = "40px sans-serrif";
@@ -69,11 +80,10 @@ function makeMove(e) {
     drawPlayerMove();
 
     checkGameOver();
-    if (gameOver) {
-      console.log("Congratulations " + currentPlayer);
-      message.innerHTML = "Congratulations " + currentPlayer;
-    }
-    togglePlayer();
+    // if (gameOver) {
+    //   console.log("Congratulations " + currentPlayer);
+    //   message.innerHTML = "Congratulations " + currentPlayer;
+    // }
   }
 }
 function togglePlayer() {
@@ -89,12 +99,18 @@ function drawPlayerMove() {
     grid[Math.floor(clickY / dimension)][Math.floor(clickX / dimension)] == ""
   ) {
     c.fillText(currentPlayer, clickX, clickY);
+    grid[Math.floor(clickY / dimension)][
+      Math.floor(clickX / dimension)
+    ] = currentPlayer;
+
+    if (!gameOver) {
+      togglePlayer();
+    }
+    socket.emit("send-current-grid", grid);
+  } else {
+    turnActive = true;
   }
   //update grid
-  grid[Math.floor(clickY / dimension)][
-    Math.floor(clickX / dimension)
-  ] = currentPlayer;
-  socket.emit("send-current-grid", grid);
 }
 
 function drawCurrentGrid() {
@@ -132,7 +148,7 @@ function checkfill() {
       if (grid[i][j] !== "") size++;
     }
   }
-  console.log("size" + size);
+
   return size;
 }
 
@@ -143,28 +159,8 @@ function checkfill() {
 //   init();
 // });
 
-// Objects
-function Object(x, y, radius, color) {
-  this.x = x;
-  this.y = y;
-  this.radius = radius;
-  this.color = color;
-}
-
-Object.prototype.draw = function() {
-  c.beginPath();
-  c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-  c.fillStyle = this.color;
-  c.fill();
-  c.closePath();
-};
-
-Object.prototype.update = function() {
-  this.draw();
-};
-
 // Implementation
-let objects;
+
 function init() {
   // objects = [];
 
@@ -188,7 +184,7 @@ function drawBoard() {
 }
 
 function checkGameOver() {
-  players.forEach(elem => {
+  for (elem of players) {
     if (grid[0][0] == elem && grid[0][1] == elem && grid[0][2] == elem) {
       gameOver = true;
     } else if (grid[1][0] == elem && grid[1][1] == elem && grid[1][2] == elem) {
@@ -201,7 +197,7 @@ function checkGameOver() {
       gameOver = true;
     } else if (grid[0][1] == elem && grid[1][1] == elem && grid[2][1] == elem) {
       gameOver = true;
-    } else if (grid[0][2] == elem && grid[2][1] == elem && grid[2][2] == elem) {
+    } else if (grid[0][2] == elem && grid[1][2] == elem && grid[2][2] == elem) {
       gameOver = true;
     }
 
@@ -210,7 +206,13 @@ function checkGameOver() {
     } else if (grid[0][2] == elem && grid[1][1] == elem && grid[2][0] == elem) {
       gameOver = true;
     }
-  });
+    if (checkfill() >= 8 && gameOver) message.innerHTML = "Draw";
+
+    if (gameOver) {
+      message.innerHTML = "Congratulation " + elem;
+      break;
+    }
+  }
 
   // if (grid[0][0] == 1 && grid[1][0] == 1 && grid[2][0] == 1) {
   //   gameOver = true;
